@@ -1,9 +1,11 @@
 package display
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"reflect"
+
 	"strings"
 
 	"github.com/lpicanco/i3-autodisplay/i3"
@@ -32,10 +34,13 @@ func init() {
 	}
 }
 
+var first bool = true
+
 func Refresh() {
 	currentOutputConfiguration := getOutputConfiguration()
 
 	if reflect.DeepEqual(currentOutputConfiguration, lastOutputConfiguration) {
+		fmt.Println("not refreshing, configs are the same")
 		return
 	}
 
@@ -58,9 +63,13 @@ func Refresh() {
 		log.Fatalf("Error executing xrandr: %s\n%s", err, out)
 	}
 
-	for _, display := range config.Config.Displays {
-		if currentOutputConfiguration[display.Name] {
-			refreshDisplay(display)
+	if first {
+		first = false
+	} else {
+		for _, display := range config.Config.Displays {
+			if currentOutputConfiguration[display.Name] {
+				refreshDisplay(display)
+			}
 		}
 	}
 
@@ -88,6 +97,8 @@ func ListenEvents() {
 		if err != nil {
 			log.Fatalf("error processing randr event: %v", err)
 		}
+
+		fmt.Println("got event: ", ev)
 
 		switch ev.(type) {
 		case randr.ScreenChangeNotifyEvent:

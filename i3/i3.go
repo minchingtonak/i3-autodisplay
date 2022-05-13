@@ -33,10 +33,11 @@ func UpdateWorkspaces(display config.Display) error {
 	for _, workspace := range display.Workspaces {
 
 		command := fmt.Sprintf("workspace number %d; move workspace to output %s", workspace, display.Name)
+		fmt.Println(command)
 		_, err := i3.RunCommand(command)
 
 		if err != nil {
-			return err
+			fmt.Printf("%s\n", err)
 		}
 	}
 
